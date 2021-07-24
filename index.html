@@ -1,26 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="script.js" defer></script>
-    <title>Tic Tac Toe</title>
-</head>
-<body>
-    <main class="content">
-        <div class="grid-container">
-            <div class="grid-item" id="item1"></div>
-            <div class="grid-item" id="item2"></div>
-            <div class="grid-item" id="item3"></div>
-            <div class="grid-item" id="item4"></div>
-            <div class="grid-item" id="item5"></div>
-            <div class="grid-item" id="item6"></div>
-            <div class="grid-item" id="item7"></div>
-            <div class="grid-item" id="item8"></div>
-            <div class="grid-item" id="item9"></div>
-        </div>
-    </main>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <script src="temp.js" defer></script>
+        <title>Tic Tac Toe</title>
+    </head>
+    <body>
+        <main class="content">
+            <!-- <h2>Tic Tac Toe</h2> -->
+            <div class="heading-container">
+                <h2>Tic Tac Toe</h2>
+            </div>
+            <div class="status-container">
+                <h3 id="status"></h3>
+            </div>
+            <div class="grid-container">
+                <div
+                    class="grid-item"
+                    id="item1"
+                    onclick="game.getInput(0, 0)"
+                ></div>
+                <div
+                    class="grid-item"
+                    id="item2"
+                    onclick="game.getInput(0, 1)"
+                ></div>
+                <div
+                    class="grid-item"
+                    id="item3"
+                    onclick="game.getInput(0, 2)"
+                ></div>
+                <div
+                    class="grid-item"
+                    id="item4"
+                    onclick="game.getInput(1, 0)"
+                ></div>
+                <div
+                    class="grid-item"
+                    id="item5"
+                    onclick="game.getInput(1, 1)"
+                ></div>
+                <div
+                    class="grid-item"
+                    id="item6"
+                    onclick="game.getInput(1, 2)"
+                ></div>
+                <div
+                    class="grid-item"
+                    id="item7"
+                    onclick="game.getInput(2, 0)"
+                ></div>
+                <div
+                    class="grid-item"
+                    id="item8"
+                    onclick="game.getInput(2, 1)"
+                ></div>
+                <div
+                    class="grid-item"
+                    id="item9"
+                    onclick="game.getInput(2, 2)"
+                ></div>
+                <div class="btn-container">
+                    <button onclick="game.start()" class="new-game-btn">
+                        New Game
+                    </button>
+                </div>
+            </div>
+        </main>
+    </body>
 </html>

@@ -1,30 +1,33 @@
-/* Module */
-const game = (() => {
-    const newGameBtn = document.querySelector('.new-game-btn');
-    const startGame = () => {
-        const player1 = Player('X');
-        const player2 = Player('O');
-        
-    }
-    return {startGame}
-})();
-
-const gameBoard = (() => {
+const board = (() => {
     let board = [
         ['', '', ''],
         ['', '', ''],
-        ['', '', '']
+        ['', '', ''],
     ];
-    const getBoard = () => { 
-        return board; 
-    }
-    const setBoard = (state, row, col) => {
+    const get = () => {
+        return board;
+    };
+    const set = (state, row, col) => {
         if (board[row][col] !== '') return;
         board[row][col] = state;
-    }
-    const isEmptyCell = (row, col) => {
-        return board[row][col] === '';
-    }
+    };
+    const display = () => {
+        let idx = 0;
+        const gridItem = document.querySelector('.grid-container').children;
+        for (let i = 0; i < board.length; i++) {
+            for (let j = 0; j < board[0].length; j++) {
+                gridItem[idx].innerText = board[i][j];
+                idx++;
+            }
+        }
+    };
+    const clear = () => {
+        for (let i = 0; i < board.length; i++) {
+            for (let j = 0; j < board[0].length; j++) {
+                board[i][j] = '';
+            }
+        }
+    };
     const isFull = () => {
         for (let i = 0; i < board.length; i++) {
             for (let j = 0; j < board[0].length; j++) {
@@ -32,69 +35,162 @@ const gameBoard = (() => {
             }
         }
         return true;
-    }
+    };
     const checkHorizontalWin = (state) => {
-        if (board[0][0] === state && board[0][1] === state && board[0][2] === state) return true;
-        if (board[1][0] === state && board[1][1] === state && board[1][2] === state) return true;
-        if (board[2][0] === state && board[2][1] === state && board[2][2] === state) return true;
-    }
+        if (
+            board[0][0] === state &&
+            board[0][1] === state &&
+            board[0][2] === state
+        )
+            return true;
+        if (
+            board[1][0] === state &&
+            board[1][1] === state &&
+            board[1][2] === state
+        )
+            return true;
+        if (
+            board[2][0] === state &&
+            board[2][1] === state &&
+            board[2][2] === state
+        )
+            return true;
+    };
     const checkVerticalWin = (state) => {
-        if (board[0][0] === state && board[1][0] === state && board[2][0] === state) return true;
-        if (board[0][1] === state && board[1][1] === state && board[2][1] === state) return true;
-        if (board[0][2] === state && board[1][2] === state && board[2][2] === state) return true;
-    }
+        if (
+            board[0][0] === state &&
+            board[1][0] === state &&
+            board[2][0] === state
+        )
+            return true;
+        if (
+            board[0][1] === state &&
+            board[1][1] === state &&
+            board[2][1] === state
+        )
+            return true;
+        if (
+            board[0][2] === state &&
+            board[1][2] === state &&
+            board[2][2] === state
+        )
+            return true;
+    };
     const checkDiagonalWin = (state) => {
-        if (board[0][0] === state && board[1][1] === state && board[2][2] === state) return true;
-        if (board[2][2] === state && board[1][1] === state && board[0][0] === state) return true;
-    }
-    const isWin = () => {
-        if (checkVerticalWin('O') || checkHorizontalWin('O') || checkDiagonalWin('O')) {console.log('O Win'); return true;}
-        if (checkVerticalWin('X') || checkHorizontalWin('X') || checkDiagonalWin('X')) {console.log('X win'); return true;}
-    }
-    const checkDraw = () => {
-        if (isFull() && !isWin()) console.log('draw');
-    }
+        if (
+            board[0][0] === state &&
+            board[1][1] === state &&
+            board[2][2] === state
+        )
+            return true;
+        if (
+            board[2][2] === state &&
+            board[1][1] === state &&
+            board[0][0] === state
+        )
+            return true;
+    };
     return {
-        getBoard,
-        setBoard,
-        isEmptyCell,
-        isWin,
-        checkDraw
+        get,
+        set,
+        display,
+        clear,
+        checkHorizontalWin,
+        checkVerticalWin,
+        checkDiagonalWin,
+        isFull,
     };
 })();
 
-/* Module */
-const displayController = (() => {
-    const grid = document.querySelector('.grid-container');
-    const children = grid.children;
-    const displayBoard = () => {
-        let idx = 0;
-        for (let i = 0; i < gameBoard.getBoard().length; i++) {
-            for (let j = 0; j < gameBoard.getBoard()[0].length; j++) {
-                children[idx].innerText = gameBoard.getBoard()[i][j];
-                idx++;
-            }
+const computer = (() => {
+    const piece = 'O';
+    const move = () => {
+        let row = getRandom();
+        let col = getRandom();
+        while (board.get()[row][col] !== '') {
+            row = getRandom();
+            col = getRandom();
         }
-    }
-    const displayChildren = () => {
-        console.log(children);
-    }
-    const displayChild = (idx) => {
-        console.log(children[idx]);
-    }
-    return {displayBoard, displayChildren, displayChild}
+        board.set(piece, row, col);
+    };
+    const getRandom = () => {
+        // [0, 3)
+        return Math.floor(Math.random() * 3);
+    };
+    return { move };
 })();
 
 /* Factory */
 const Player = (type) => {
+    let name;
     let piece = type;
     const move = (row, col) => {
-        if (gameBoard.isEmptyCell(row, col)) {
-            gameBoard.setBoard(piece, row, col);
-            displayController.displayBoard();
+        if (board.get()[row][col] === '') {
+            board.set(piece, row, col);
+            return true;
         }
-    }
-    return {move}
-}
+        return false;
+    };
+    const setName = (pName) => {
+        name = pName;
+    };
+    return { move };
+};
 
-game.startGame();
+const game = (() => {
+    const p1 = Player('X');
+    const p2 = Player('O');
+    let turn;
+    let running;
+    const start = () => {
+        init();
+    };
+    const init = () => {
+        turn = 0;
+        running = true;
+        showMessage('');
+        board.clear();
+        board.display();
+    };
+    const makeMove = (row, col) => {
+        if (isP1Turn()) {
+            if (p1.move(row, col)) {
+                turn++;
+            }
+        } else {
+            if (p2.move(row, col)) {
+                turn++;
+            }
+        }
+        if (isTie()) showMessage('Tie!');
+        if (isWin('X')) showMessage('X wins!');
+        if (isWin('O')) showMessage('O wins!');
+        board.display();
+    };
+    const getInput = (row, col) => {
+        if (running) {
+            makeMove(row, col);
+        }
+    };
+    const isP1Turn = () => {
+        return turn % 2 === 0;
+    };
+    const showMessage = (msg) => {
+        let status = document.getElementById('status');
+        if (status !== null) status.innerText = msg;
+    };
+    const isWin = (player) => {
+        if (
+            board.checkVerticalWin(player) ||
+            board.checkHorizontalWin(player) ||
+            board.checkDiagonalWin(player)
+        ) {
+            return true;
+        }
+        return false;
+    };
+    const isTie = () => {
+        return board.isFull() && !isWin();
+    };
+    return { start, getInput };
+})();
