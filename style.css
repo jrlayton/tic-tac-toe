@@ -1,29 +1,50 @@
+body {
+    box-sizing: border-box;
+    background-image: linear-gradient(
+        to right,
+        rgba(164, 63, 211, 0.75),
+        rgba(216, 12, 165, 0.75)
+    );
+    font-family: 'Permanent Marker', cursive;
+}
+
+.hidden {
+    display: none;
+}
+
 .content {
     display: flex;
+    width: 100%;
+    height: 100%;
     justify-content: center;
-    min-height: 100vh;
+    align-content: center;
 }
 
 .btn-container {
     display: block;
     position: absolute;
-    top: 20%;
+    top: 77.5%;
 }
 
 .heading-container {
     display: block;
     position: absolute;
-    top: 5%;
+    font-size: 3rem;
+    font-weight: 700;
 }
 
 .status-container {
     display: block;
     position: absolute;
-    top: 12.5%;
+    top: 22.5%;
+    font-size: 1.25rem;
+    font-weight: 600;
 }
 
 .grid-container {
     display: grid;
+    position: absolute;
+    top: 35%;
     grid-template-columns: repeat(3, 100px);
     grid-template-rows: repeat(3, 100px);
     align-content: center;
@@ -31,31 +52,55 @@
     justify-content: center;
 }
 
-.grid-container #item2,
-.grid-container #item8 {
-    border-right: solid green 1px;
-    border-left: solid green 1px;
-}
-
-.grid-container #item4,
-.grid-container #item6 {
-    border-top: solid green 1px;
-    border-bottom: solid green 1px;
-}
-
-.grid-container #item5 {
-    border: solid green 1px;
-}
-
 .grid-item {
     display: flex;
     width: 100px;
     height: 100px;
+    text-align: center;
     align-items: center;
     justify-content: center;
-    color: yellow;
+    font-size: 6rem;
+    color: whitesmoke;
+    background: rgba(40, 40, 40, 0.75);
+    border: solid 2px;
 }
 
 .grid-item:hover {
     cursor: pointer;
+}
+
+.new-game-btn {
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-family: 'Permanent Marker', cursive;
+}
+
+#name-form {
+    display: none;
+    position: absolute;
+    text-align: center;
+    width: 250px;
+    height: 250px;
+    border-radius: 7.5px;
+    padding: 0 10px;
+    top: 37.5%;
+}
+
+#name-form label {
+    margin-bottom: 5px;
+    display: block;
+    width: 250px;
+    text-align: left;
+    padding-left: 10px;
+}
+
+#name-form input {
+    margin-bottom: 5px;
+    width: 225px;
+}
+
+#name-form button {
+    margin-top: 20px;
 }

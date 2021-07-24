@@ -84,9 +84,9 @@ const board = (() => {
         )
             return true;
         if (
-            board[2][2] === state &&
+            board[0][2] === state &&
             board[1][1] === state &&
-            board[0][0] === state
+            board[2][0] === state
         )
             return true;
     };
@@ -102,23 +102,22 @@ const board = (() => {
     };
 })();
 
-const computer = (() => {
-    const piece = 'O';
-    const move = () => {
-        let row = getRandom();
-        let col = getRandom();
-        while (board.get()[row][col] !== '') {
-            row = getRandom();
-            col = getRandom();
-        }
-        board.set(piece, row, col);
-    };
-    const getRandom = () => {
-        // [0, 3)
-        return Math.floor(Math.random() * 3);
-    };
-    return { move };
-})();
+// const computer = (() => {
+//     const piece = 'O';
+//     const move = () => {
+//         let row = getRandom();
+//         let col = getRandom();
+//         while (board.get()[row][col] !== '') {
+//             row = getRandom();
+//             col = getRandom();
+//         }
+//         board.set(piece, row, col);
+//     };
+//     const getRandom = () => {
+//         return Math.floor(Math.random() * board.length);
+//     };
+//     return { move };
+// })();
 
 /* Factory */
 const Player = (type) => {
@@ -134,23 +133,28 @@ const Player = (type) => {
     const setName = (pName) => {
         name = pName;
     };
-    return { move };
+    const getName = () => {
+        return name;
+    };
+    return { move, setName, getName };
 };
 
 const game = (() => {
     const p1 = Player('X');
     const p2 = Player('O');
     let turn;
-    let running;
+    let playing;
     const start = () => {
+        displayController.showNameForm();
+        displayController.dimGrid();
         init();
     };
     const init = () => {
         turn = 0;
-        running = true;
-        showMessage('');
+        playing = true;
         board.clear();
         board.display();
+        showMessage('Click new game to start or restart game!');
     };
     const makeMove = (row, col) => {
         if (isP1Turn()) {
@@ -162,22 +166,31 @@ const game = (() => {
                 turn++;
             }
         }
-        if (isTie()) showMessage('Tie!');
-        if (isWin('X')) showMessage('X wins!');
-        if (isWin('O')) showMessage('O wins!');
+        if (isTie()) {
+            showMessage('Tie Game!');
+            playing = false;
+        }
+        if (isWin('X')) {
+            showMessage(p1.getName() + 'Wins!');
+            playing = false;
+        }
+        if (isWin('O')) {
+            showMessage(p2.getName() + 'Wins!');
+            playing = false;
+        }
         board.display();
     };
     const getInput = (row, col) => {
-        if (running) {
+        if (playing) {
             makeMove(row, col);
         }
     };
     const isP1Turn = () => {
         return turn % 2 === 0;
     };
-    const showMessage = (msg) => {
+    const showMessage = (message) => {
         let status = document.getElementById('status');
-        if (status !== null) status.innerText = msg;
+        if (status !== null) status.innerText = message;
     };
     const isWin = (player) => {
         if (
@@ -193,4 +206,29 @@ const game = (() => {
         return board.isFull() && !isWin();
     };
     return { start, getInput };
+})();
+
+const displayController = (() => {
+    const showNameForm = () => {
+        document.getElementById('name-form').style.display = 'block';
+    };
+    const hideNameForm = () => {
+        document.getElementById('name-form').style.display = 'none';
+    };
+    const dimGrid = () => {
+        document.getElementById('grid').style.opacity = '15%';
+    };
+    const showGrid = () => {
+        document.getElementById('grid-container').style.opacity = '75%';
+    };
+    const setPlayerNames = () => {
+        let p1Name = document.getElementById('name1').value;
+        let p2Name = document.getElementById('name2').value;
+        p1.setName(p1Name);
+        p2.setName(p2Name);
+        hideNameForm();
+        showGrid();
+    };
+    const getPlayerNames = () => {};
+    return { showNameForm, dimGrid, setPlayerNames };
 })();

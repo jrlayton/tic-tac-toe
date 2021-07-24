@@ -4,20 +4,22 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet"> 
         <link rel="stylesheet" type="text/css" href="style.css" />
-        <script src="temp.js" defer></script>
+        <script src="script.js" defer></script>
         <title>Tic Tac Toe</title>
     </head>
     <body>
         <main class="content">
-            <!-- <h2>Tic Tac Toe</h2> -->
             <div class="heading-container">
                 <h2>Tic Tac Toe</h2>
             </div>
             <div class="status-container">
-                <h3 id="status"></h3>
+                <h3 id="status">Click new game to start or restart game!</h3>
             </div>
-            <div class="grid-container">
+            <div id="grid" class="grid-container">
                 <div
                     class="grid-item"
                     id="item1"
@@ -63,11 +65,19 @@
                     id="item9"
                     onclick="game.getInput(2, 2)"
                 ></div>
-                <div class="btn-container">
-                    <button onclick="game.start()" class="new-game-btn">
-                        New Game
-                    </button>
-                </div>
+            </div>
+            <div class="btn-container">
+                <button onclick="game.start()" class="new-game-btn">
+                    New Game
+                </button>
+            </div>
+            <div id="name-form" class="hidden">
+                <h3>Enter player names</h3>
+                <label for="#name1">Name</label>
+                <input id="name1" type="text">
+                <label for="#name2">Name</label>
+                <input id="name2" type="text">
+                <button onlick="displayController.setPlayerName()" id="submit" type="button">Submit</button>
             </div>
         </main>
     </body>
