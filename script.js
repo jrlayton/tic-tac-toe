@@ -1,8 +1,8 @@
 const board = (() => {
     let board = [
-        ['', '', ''],
-        ['', '', ''],
-        ['', '', ''],
+        ["", "", ""],
+        ["", "", ""],
+        ["", "", ""],
     ];
     const get = () => {
         return board;
@@ -13,14 +13,14 @@ const board = (() => {
     const clear = () => {
         for (let i = 0; i < board.length; i++) {
             for (let j = 0; j < board[0].length; j++) {
-                board[i][j] = '';
+                board[i][j] = "";
             }
         }
     };
     const isFull = () => {
         for (let i = 0; i < board.length; i++) {
             for (let j = 0; j < board[0].length; j++) {
-                if (board[i][j] === '') return false;
+                if (board[i][j] === "") return false;
             }
         }
         return true;
@@ -94,7 +94,7 @@ const Player = (type) => {
     let name;
     let piece = type;
     const move = (row, col) => {
-        if (board.get()[row][col] === '') {
+        if (board.get()[row][col] === "") {
             board.set(piece, row, col);
             return true;
         }
@@ -110,20 +110,25 @@ const Player = (type) => {
 };
 
 const game = (() => {
-    const p1 = Player('X');
-    const p2 = Player('O');
+    const p1 = Player("X");
+    const p2 = Player("O");
     let turn;
     let playing;
-    const start = () => {
+    const init = () => {
         displayController.showNameForm();
         displayController.dimGrid();
     };
-    const init = () => {
+    const start = () => {
         turn = 0;
         playing = true;
+
         board.clear();
+
+        displayController.showGrid();
         displayController.displayBoard();
-        showMessage('Click new game to start or restart game!');
+        displayController.showMessage(
+            "Click new game to start or restart game!"
+        );
     };
     const makeMove = (row, col) => {
         if (isP1Turn()) {
@@ -136,15 +141,15 @@ const game = (() => {
             }
         }
         if (isTie()) {
-            showMessage('Tie Game!');
+            displayController.showMessage("Tie Game!");
             playing = false;
         }
-        if (isWin('X')) {
-            showMessage(p1.getName() + ' Wins!');
+        if (isWin("X")) {
+            displayController.showMessage(p1.getName() + " Wins!");
             playing = false;
         }
-        if (isWin('O')) {
-            showMessage(p2.getName() + ' Wins!');
+        if (isWin("O")) {
+            displayController.showMessage(p2.getName() + " Wins!");
             playing = false;
         }
         displayController.displayBoard();
@@ -156,10 +161,6 @@ const game = (() => {
     };
     const isP1Turn = () => {
         return turn % 2 === 0;
-    };
-    const showMessage = (message) => {
-        let status = document.getElementById('status');
-        if (status !== null) status.innerText = message;
     };
     const isWin = (player) => {
         if (
@@ -183,20 +184,20 @@ const game = (() => {
 
 const displayController = (() => {
     const showNameForm = () => {
-        document.getElementById('name-form').style.display = 'block';
+        document.getElementById("name-form").style.display = "block";
     };
     const hideNameForm = () => {
-        document.getElementById('name-form').style.display = 'none';
+        document.getElementById("name-form").style.display = "none";
     };
     const dimGrid = () => {
-        document.getElementById('grid').style.opacity = '35%';
+        document.getElementById("grid").style.opacity = "35%";
     };
     const showGrid = () => {
-        document.getElementById('grid').style.opacity = '85%';
+        document.getElementById("grid").style.opacity = "85%";
     };
     const displayBoard = () => {
         let idx = 0;
-        const gridItem = document.querySelector('.grid-container').children;
+        const gridItem = document.querySelector(".grid-container").children;
         for (let i = 0; i < board.get().length; i++) {
             for (let j = 0; j < board.get()[0].length; j++) {
                 gridItem[idx].innerText = board.get()[i][j];
@@ -204,14 +205,24 @@ const displayController = (() => {
             }
         }
     };
+    const showMessage = (message) => {
+        let status = document.getElementById("status");
+        if (status !== null) status.innerText = message;
+    };
     const setPlayerNames = () => {
-        let p1Name = document.getElementById('name1').value;
-        let p2Name = document.getElementById('name2').value;
+        let p1Name = document.getElementById("name1").value;
+        let p2Name = document.getElementById("name2").value;
         game.getPlayer(1).setName(p1Name);
         game.getPlayer(2).setName(p2Name);
         hideNameForm();
-        game.init();
-        showGrid();
+        game.start();
     };
-    return { showNameForm, dimGrid, setPlayerNames, displayBoard };
+    return {
+        showNameForm,
+        dimGrid,
+        setPlayerNames,
+        displayBoard,
+        showMessage,
+        showGrid,
+    };
 })();
