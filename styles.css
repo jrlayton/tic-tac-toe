@@ -1,0 +1,88 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  height: 100svh;
+  width: 100svw;
+  background-color: black;
+}
+
+img {
+  width: 100%;
+  display: block;
+}
+
+h1 {
+  color: white;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 150px;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: 50px;
+  height: 50px;
+  box-sizing: border-box;
+}
+
+.cell:hover {
+  background-color: lightgray;
+}
+
+.row:nth-child(1) .cell:nth-child(1) {
+  border-bottom: 5px solid white;
+  border-right: 5px solid white;
+}
+
+.row:nth-child(1) .cell:nth-child(2) {
+  border: 5px solid white;
+  border-top: none;
+}
+
+.row:nth-child(1) .cell:nth-child(3) {
+  border-bottom: 5px solid white;
+  border-left: 5px solid white;
+}
+
+.row:nth-child(2) .cell:nth-child(1) {
+  border: 5px solid white;
+  border-left: none;
+}
+
+.row:nth-child(2) .cell:nth-child(2) {
+  border: 5px solid white;
+}
+
+.row:nth-child(2) .cell:nth-child(3) {
+  border: 5px solid white;
+  border-right: none;
+}
+
+.row:nth-child(3) .cell:nth-child(1) {
+  border-top: 5px solid white;
+  border-right: 5px solid white;
+}
+
+.row:nth-child(3) .cell:nth-child(2) {
+  border: 5px solid white;
+  border-bottom: none;
+}
+
+.row:nth-child(3) .cell:nth-child(3) {
+  border-top: 5px solid white;
+  border-left: 5px solid white;
+}
