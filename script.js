@@ -1,3 +1,18 @@
+const player = (name, token) => {
+  const _name = name;
+  const _token = token;
+
+  const getName = () => {
+    return _name;
+  };
+
+  const getToken = () => {
+    return _token;
+  };
+
+  return { getName, getToken };
+};
+
 const gameBoard = (() => {
   let _board = [];
 
@@ -25,6 +40,8 @@ const gameBoard = (() => {
 })();
 
 const gameController = (() => {
+  const _player1 = player("Player1", "X");
+  const _player2 = player("Player2", "O");
   const _state = {
     running: false,
     turn: undefined,
@@ -64,6 +81,7 @@ const gameController = (() => {
   };
 
   const newGame = () => {
+    console.log("Starting new game");
     gameBoard.reset();
     _state.running = true;
     _state.playerTurn = 1;
@@ -71,9 +89,7 @@ const gameController = (() => {
 
   const playerMove = (row, col) => {
     if (!_state.running) {
-      console.log(
-        "ERROR: Unable to process player move. Game not in progress."
-      );
+      console.log("ERROR: Game not in progress.");
       return;
     }
     if (!_checkValidMove(row, col)) {
@@ -81,13 +97,16 @@ const gameController = (() => {
       return;
     }
 
-    const token = _state.playerTurn === 1 ? "X" : "O";
+    const token =
+      _state.playerTurn === 1 ? _player1.getToken() : _player2.getToken();
     gameBoard.set(row, col, token);
 
     console.log(gameBoard.toString());
 
     if (isWin(row, col, token)) {
-      console.log(`Player ${_state.playerTurn} wins`);
+      const playerName =
+        _state.playerTurn === 1 ? _player1.getName() : _player2.getName();
+      console.log(`${playerName} wins`);
       _state.running = false;
     } else if (isTie()) {
       console.log(`Tie game`);
@@ -117,4 +136,31 @@ const gameController = (() => {
   };
 
   return { getState, newGame, playerMove, isWin, isTie };
+})();
+
+const displayController = (() => {
+  const newGameBtn = document.querySelector("button");
+  newGameBtn.addEventListener("click", () => gameController.newGame());
+
+  const cells = document.querySelectorAll(".cell");
+  cells.forEach((cell) =>
+    cell.addEventListener("click", () => {
+      const row = cell.getAttribute("data-row");
+      const col = cell.getAttribute("data-col");
+      const token = gameController.getState().playerTurn === 1 ? "X" : "O";
+
+      gameController.playerMove(row, col);
+      writeToDOM(`.cell[data-row="${row}"][data-col="${col}"]`, token);
+    })
+  );
+
+  const writeToDOM = (selector, message) => {
+    document.querySelector(selector).innerText = message;
+  };
+
+  const clearCells = () => {
+    cells.forEach((cell) => (cell.innerText = ""));
+  };
+
+  return { writeToDOM, clearCells };
 })();
