@@ -1,8 +1,20 @@
-* {
-  box-sizing: border-box;
+:root {
+  --font-family-sans: "Poppins", sans-serif;
+
+  --font-size-400: 1rem;
+  --font-size-500: 1.5rem;
+  --font-size-600: 2rem;
+  --font-size-700: 2.5rem;
+  --font-size-800: 3.5rem;
+
+  --color-dark-gray: #232323;
+  --color-green: #4caf50;
+  --color-red: #ff5252;
+  --color-orange: #ff9800;
 }
 
-html {
+* {
+  box-sizing: border-box;
   padding: 0;
   margin: 0;
 }
@@ -10,7 +22,9 @@ html {
 body {
   height: 100svh;
   width: 100svw;
-  background-color: black;
+  background-color: var(--color-dark-gray);
+
+  font-family: var(--font-family-sans);
 }
 
 img {
@@ -18,15 +32,60 @@ img {
   display: block;
 }
 
-h1 {
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 100%;
+}
+
+h1,
+h2 {
   color: white;
+}
+
+h1 {
+  font-size: clamp(var(--font-size-600), 2.5vw + 1rem, var(--font-size-800));
+}
+
+/* h2 {
+  font-size: clamp(var(--font-size-500), 2vw + 1rem, var(--font-size-700));
+  min-height: clamp(var(--font-size-500), 2vw + 1rem, var(--font-size-700));
+  border: 2px solid yellow;
+} */
+
+button {
+  width: clamp(80px, 10vw + 40px, 180px);
+  height: clamp(20px, 5vw + 10px, 50px);
+  color: white;
+  background-color: var(--color-green);
+  border-radius: 5px;
+  border: none;
+  font-weight: 600;
+  font-size: clamp(0.8rem, 1vw + 0.5rem, var(--font-size-500));
+  transition: transform 0.8s ease;
+}
+
+button:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+main > div {
+  margin-block: clamp(1rem, 2.5vh, 2rem);
+}
+
+main > div ~ div {
+  margin-block: clamp(1rem, 2.5vh, 2rem);
 }
 
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 150px;
+  transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
 .row {
@@ -34,55 +93,107 @@ h1 {
 }
 
 .cell {
-  width: 50px;
-  height: 50px;
-  box-sizing: border-box;
+  width: clamp(75px, 25vw, 175px);
+  height: clamp(75px, 25vw, 175px);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .cell:hover {
-  background-color: lightgray;
+  background-color: rgb(53, 53, 53);
+  cursor: pointer;
 }
 
+.cell-item {
+  width: 70%;
+  height: 70%;
+}
+
+/* Top left cell */
 .row:nth-child(1) .cell:nth-child(1) {
-  border-bottom: 5px solid white;
-  border-right: 5px solid white;
+  border-bottom: clamp(2px, 0.5vw, 5px) solid white;
+  border-right: clamp(2px, 0.5vw, 5px) solid white;
 }
 
+/* Top middle cell */
 .row:nth-child(1) .cell:nth-child(2) {
-  border: 5px solid white;
+  border: clamp(2px, 0.5vw, 5px) solid white;
   border-top: none;
 }
 
+/* Top right cell */
 .row:nth-child(1) .cell:nth-child(3) {
-  border-bottom: 5px solid white;
-  border-left: 5px solid white;
+  border-bottom: clamp(2px, 0.5vw, 5px) solid white;
+  border-left: clamp(2px, 0.5vw, 5px) solid white;
 }
 
+/* Middle left cell */
 .row:nth-child(2) .cell:nth-child(1) {
-  border: 5px solid white;
+  border: clamp(2px, 0.5vw, 5px) solid white;
   border-left: none;
 }
 
+/* Middle cell */
 .row:nth-child(2) .cell:nth-child(2) {
-  border: 5px solid white;
+  border: clamp(2px, 0.5vw, 5px) solid white;
 }
 
+/* Middle right cell */
 .row:nth-child(2) .cell:nth-child(3) {
-  border: 5px solid white;
+  border: clamp(2px, 0.5vw, 5px) solid white;
   border-right: none;
 }
 
+/* Bottom left cell */
 .row:nth-child(3) .cell:nth-child(1) {
-  border-top: 5px solid white;
-  border-right: 5px solid white;
+  border-top: clamp(2px, 0.5vw, 5px) solid white;
+  border-right: clamp(2px, 0.5vw, 5px) solid white;
 }
 
+/* Bottom cell */
 .row:nth-child(3) .cell:nth-child(2) {
-  border: 5px solid white;
+  border: clamp(2px, 0.5vw, 5px) solid white;
   border-bottom: none;
 }
 
+/* Bottom right cell */
 .row:nth-child(3) .cell:nth-child(3) {
-  border-top: 5px solid white;
-  border-left: 5px solid white;
+  border-top: clamp(2px, 0.5vw, 5px) solid white;
+  border-left: clamp(2px, 0.5vw, 5px) solid white;
+}
+
+@keyframes shrinkAndDisappear {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes expandAndAppear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  75% {
+    transform: scale(1.15);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.hide-animation {
+  animation: shrinkAndDisappear 0.5s forwards;
+}
+
+.show-animation {
+  animation: expandAndAppear 0.5s forwards;
 }
