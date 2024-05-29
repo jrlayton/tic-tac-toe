@@ -90,11 +90,11 @@ const gameController = (() => {
   const playerMove = (row, col) => {
     if (!_state.running) {
       console.log("ERROR: Game not in progress.");
-      return;
+      return false;
     }
     if (!_checkValidMove(row, col)) {
       console.log("ERROR: Player move is invalid");
-      return;
+      return false;
     }
 
     const token =
@@ -114,6 +114,8 @@ const gameController = (() => {
     } else {
       _state.playerTurn = _state.playerTurn === 1 ? 2 : 1;
     }
+
+    return true;
   };
 
   const getState = () => {
@@ -140,7 +142,10 @@ const gameController = (() => {
 
 const displayController = (() => {
   const newGameBtn = document.querySelector("button");
-  newGameBtn.addEventListener("click", () => gameController.newGame());
+  newGameBtn.addEventListener("click", () => {
+    gameController.newGame();
+    clearCells();
+  });
 
   const cells = document.querySelectorAll(".cell");
   cells.forEach((cell) =>
@@ -149,18 +154,42 @@ const displayController = (() => {
       const col = cell.getAttribute("data-col");
       const token = gameController.getState().playerTurn === 1 ? "X" : "O";
 
-      gameController.playerMove(row, col);
-      writeToDOM(`.cell[data-row="${row}"][data-col="${col}"]`, token);
+      if (gameController.playerMove(row, col)) {
+        cell.appendChild(elementFactory.createCellItem(token));
+      }
+
+      // writeToDOM(
+      //   `.cell[data-row="${row}"][data-col="${col}"]`,
+      //   elementFactory.createCellItem(token)
+      // );
     })
   );
 
   const writeToDOM = (selector, message) => {
-    document.querySelector(selector).innerText = message;
+    document.querySelector(selector).innerHTML = message;
   };
 
   const clearCells = () => {
-    cells.forEach((cell) => (cell.innerText = ""));
+    const cellItems = document.querySelectorAll(".cell-item");
+    cellItems.forEach((item) =>
+      item.classList.replace("show-animation", "hide-animation")
+    );
+
+    setTimeout(() => {
+      cells.forEach((cell) => (cell.innerText = ""));
+    }, 500);
   };
 
   return { writeToDOM, clearCells };
+})();
+
+const elementFactory = (() => {
+  const createCellItem = (token) => {
+    const img = document.createElement("img");
+    img.src = `assets/${token}.png`;
+    img.classList.add("cell-item", "show-animation");
+    return img;
+  };
+
+  return { createCellItem };
 })();
