@@ -3,16 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tic Tac Toe Grid</title>
+    <title>Tic Tac Toe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
     <script src="script.js" defer></script>
   </head>
   <body>
-    <div class="background-img"></div>
-    <header>
-      <h1>Tic Tac Toe</h1>
-    </header>
     <main>
+      <div class="container">
+        <h1>Tic Tac Toe</h1>
+      </div>
       <div class="container">
         <div class="row">
           <div class="cell" data-row="0" data-col="0"></div>
@@ -30,7 +35,9 @@
           <div class="cell" data-row="2" data-col="2"></div>
         </div>
       </div>
-      <button>New game</button>
+      <div class="container">
+        <button class="new-game">New game</button>
+      </div>
     </main>
   </body>
 </html>
