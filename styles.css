@@ -7,7 +7,7 @@
   --font-size-700: 2.5rem;
   --font-size-800: 3.5rem;
 
-  --color-dark-gray: #232323;
+  --color-dark-gray: #0e0e0e;
   --color-green: #4caf50;
   --color-red: #ff5252;
   --color-orange: #ff9800;
@@ -38,6 +38,8 @@ main {
   align-items: center;
   justify-content: space-evenly;
   height: 100%;
+
+  z-index: 1;
 }
 
 h1,
@@ -47,13 +49,13 @@ h2 {
 
 h1 {
   font-size: clamp(var(--font-size-600), 2.5vw + 1rem, var(--font-size-800));
+  z-index: 100;
 }
 
-/* h2 {
-  font-size: clamp(var(--font-size-500), 2vw + 1rem, var(--font-size-700));
-  min-height: clamp(var(--font-size-500), 2vw + 1rem, var(--font-size-700));
-  border: 2px solid yellow;
-} */
+h2 {
+  font-size: clamp(var(--font-size-400), 1.75vw + 1rem, var(--font-size-700));
+  font-weight: 500;
+}
 
 button {
   width: clamp(80px, 10vw + 40px, 180px);
@@ -71,6 +73,12 @@ button:hover {
   cursor: pointer;
   transform: scale(1.05);
   transition: transform 0.3s ease;
+}
+
+.new-game {
+  position: absolute;
+  bottom: 4%;
+  overflow: hidden;
 }
 
 main > div {
@@ -102,7 +110,13 @@ main > div ~ div {
 }
 
 .cell:hover {
+  /* background-color: rgb(53, 53, 53); */
+  cursor: pointer;
+}
+
+.cell:hover {
   background-color: rgb(53, 53, 53);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
 
@@ -162,6 +176,147 @@ main > div ~ div {
 .row:nth-child(3) .cell:nth-child(3) {
   border-top: clamp(2px, 0.5vw, 5px) solid white;
   border-left: clamp(2px, 0.5vw, 5px) solid white;
+}
+
+/* MODALS */
+.modal {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 1);
+  background-color: var(--color-dark-gray);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.difficulty,
+.players {
+  display: none;
+}
+
+.modal-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+  gap: clamp(50px, 5vh + 10px, 100px);
+
+  /* border: 2px solid green; */
+}
+
+.modal-options {
+  display: inherit;
+  flex-direction: row;
+  justify-content: center;
+  width: 80%;
+  gap: 0px 30px;
+
+  /* border: 2px solid yellow; */
+}
+
+.difficulty .option {
+  transition: transform 1s ease;
+}
+
+.option:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.option-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: clamp(75px, 20vw, 175px);
+  height: clamp(75px, 20vw, 175px);
+  padding: 30px 0px;
+  border: clamp(3px, 1vw, 7px) solid white;
+  border-radius: 20%;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+}
+
+.difficulty .option-image {
+  padding: 5px 5px;
+}
+
+.difficulty .option:nth-child(1) > .option-image {
+  border: clamp(3px, 1vw, 7px) solid var(--color-green);
+}
+
+.difficulty .option:nth-child(2) > .option-image {
+  border: clamp(3px, 1vw, 7px) solid var(--color-orange);
+}
+
+.difficulty .option:nth-child(3) > .option-image {
+  border: clamp(3px, 1vw, 7px) solid var(--color-red);
+}
+
+.option-image > img {
+  width: clamp(40px, 100%, 175px);
+  height: clamp(40px, 100%, 175px);
+  object-fit: contain;
+}
+
+.modal-back {
+  position: absolute;
+  bottom: 15%;
+  z-index: 100;
+
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-back > img:hover {
+  cursor: pointer;
+  transform: scale(1.15);
+  transition: transform 0.3s ease;
+}
+
+.modal-back img {
+  width: clamp(20px, 2vw + 10px, 40px);
+  transition: transform 1s ease;
+}
+
+.option-text {
+  display: flex;
+  justify-content: center;
+  color: white;
+}
+
+.option-text > span {
+  font-size: clamp(0.8rem, 1vw + 0.5rem, var(--font-size-500));
+  margin-top: clamp(0.5rem, 1vh, 1.5rem);
+}
+
+.page-indicators {
+  position: absolute;
+  bottom: 5%;
+  z-index: 100;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  gap: 0px 5px;
+
+  /* border: 2px solid blue; */
+}
+
+.page-indicator {
+  width: clamp(5px, 1vw, 10px);
+  height: clamp(5px, 1vw, 10px);
+  border-radius: 50%;
+  background-color: #d9d9d9;
+}
+
+.page-indicator__off {
+  filter: brightness(50%);
 }
 
 @keyframes shrinkAndDisappear {
