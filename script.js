@@ -141,13 +141,25 @@ const gameController = (() => {
 })();
 
 const displayController = (() => {
-  const newGameBtn = document.querySelector("button");
+  /* Grab DOM elements */
+  const newGameBtn = document.querySelector(".new-game");
+  const cells = document.querySelectorAll(".cell");
+  const opponentsModal = document.querySelector(".opponents");
+  const difficultyModal = document.querySelector(".difficulty");
+  const modalBackBtn = document.querySelector(".modal-back");
+  // const tokensModal = document.querySelector("modal .tokens");
+  const chooseOpponentPlayer = document.querySelector(
+    ".opponents .modal-options > div:nth-child(1)"
+  );
+  const chooseOpponentComputer = document.querySelector(
+    ".opponents .modal-options > div:nth-child(2)"
+  );
+
+  /* Add event listeners to DOM elements */
   newGameBtn.addEventListener("click", () => {
     gameController.newGame();
     clearCells();
   });
-
-  const cells = document.querySelectorAll(".cell");
   cells.forEach((cell) =>
     cell.addEventListener("click", () => {
       const row = cell.getAttribute("data-row");
@@ -157,13 +169,21 @@ const displayController = (() => {
       if (gameController.playerMove(row, col)) {
         cell.appendChild(elementFactory.createCellItem(token));
       }
-
-      // writeToDOM(
-      //   `.cell[data-row="${row}"][data-col="${col}"]`,
-      //   elementFactory.createCellItem(token)
-      // );
     })
   );
+  chooseOpponentPlayer.addEventListener("click", () => {
+    opponentsModal.style.display = "none";
+  });
+  chooseOpponentComputer.addEventListener("click", () => {
+    opponentsModal.style.display = "none";
+    difficultyModal.style.display = "flex";
+    modalBackBtn.style.display = "flex";
+  });
+  modalBackBtn.addEventListener("click", () => {
+    opponentsModal.style.display = "flex";
+    difficultyModal.style.display = "none";
+    modalBackBtn.style.display = "none";
+  });
 
   const writeToDOM = (selector, message) => {
     document.querySelector(selector).innerHTML = message;
