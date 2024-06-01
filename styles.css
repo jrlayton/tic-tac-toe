@@ -100,6 +100,7 @@ main > div ~ div {
 
 .grid {
   opacity: 0;
+  margin-bottom: 5%;
 }
 
 .row {
