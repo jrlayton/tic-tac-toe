@@ -599,7 +599,7 @@ const aiController = (() => {
           board[i][j] = _aiToken;
           let moveVal = _minimax(board, _playerToken);
           board[i][j] = "";
-          if (moveVal < bestVal) {
+          if (moveVal < bestScore) {
             bestMove = [i, j];
             bestScore = moveVal;
           }
