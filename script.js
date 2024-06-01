@@ -21,6 +21,8 @@ const gameBoard = (() => {
   };
 
   const set = (row, col, token) => {
+    console.log("row " + row);
+    console.log("col " + col);
     _board[row][col] = token;
   };
 
@@ -45,6 +47,9 @@ const gameController = (() => {
   const _state = {
     running: false,
     turn: undefined,
+    difficulty: undefined,
+    vsPlayer: undefined,
+    difficulty: undefined,
   };
   let _winningCells = [
     [0, 0, 0],
@@ -59,71 +64,38 @@ const gameController = (() => {
 
   const _checkRowWin = (row, token) => {
     const board = gameBoard.get();
-    if (
+    return (
       board[row][0] === token &&
       board[row][1] === token &&
       board[row][2] === token
-    ) {
-      _winningCells[row][0] = 1;
-      _winningCells[row][1] = 1;
-      _winningCells[row][2] = 1;
-      return true;
-    }
-    return false;
+    );
   };
 
   const _checkColWin = (col, token) => {
     const board = gameBoard.get();
-    if (
+    return (
       board[0][col] === token &&
       board[1][col] === token &&
       board[2][col] === token
-    ) {
-      _winningCells[0][col] = 1;
-      _winningCells[1][col] = 1;
-      _winningCells[2][col] = 1;
-      return true;
-    }
-    return false;
+    );
   };
 
   const _checkDiagWin = (token) => {
-    // Checking with variables here to make sure the functions run
-    // and set all winning cells (any 3 in a row) so that if a
-    // player wins using both diagonals, they both change color at the end
-    let primaryDiagWin = _checkPrimaryDiagWin(token);
-    let secondaryDiagWin = _checkSecondaryDiagWin(token);
-    return primaryDiagWin || secondaryDiagWin;
+    return _checkPrimaryDiagWin(token) || _checkSecondaryDiagWin(token);
   };
 
   const _checkPrimaryDiagWin = (token) => {
     const board = gameBoard.get();
-    if (
-      board[0][0] === token &&
-      board[1][1] === token &&
-      board[2][2] === token
-    ) {
-      _winningCells[0][0] = 1;
-      _winningCells[1][1] = 1;
-      _winningCells[2][2] = 1;
-      return true;
-    }
-    return false;
+    return (
+      board[0][0] === token && board[1][1] === token && board[2][2] === token
+    );
   };
 
   const _checkSecondaryDiagWin = (token) => {
     const board = gameBoard.get();
-    if (
-      board[0][2] === token &&
-      board[1][1] === token &&
-      board[2][0] === token
-    ) {
-      _winningCells[0][2] = 1;
-      _winningCells[1][1] = 1;
-      _winningCells[2][0] = 1;
-      return true;
-    }
-    return false;
+    return (
+      board[0][2] === token && board[1][1] === token && board[2][0] === token
+    );
   };
 
   const newGame = () => {
@@ -131,7 +103,30 @@ const gameController = (() => {
     gameBoard.reset();
     _winningCellsReset();
     _state.running = true;
-    _state.playerTurn = 1;
+    _state.turn = 1;
+  };
+
+  const _aiMove = () => {
+    const [row, col] = aiController.aiMove();
+    const token = aiController.getToken();
+    gameBoard.set(row, col, token);
+    displayController.addTokenToCell(row, col, token);
+
+    const board = gameBoard.get();
+
+    if (isWin(board, token)) {
+      console.log("AI WINS");
+      setWinningCells(row, col, token);
+      displayController.highlightCellsOnGameEnd({ isWin: true });
+      displayController.changeHeaderToStatusMsgOnGameEnd(`Computer wins!`);
+      _state.running = false;
+    } else if (isTie(board)) {
+      displayController.highlightCellsOnGameEnd({ isTie: true });
+      displayController.changeHeaderToStatusMsgOnGameEnd(`Tie game!`);
+      _state.running = false;
+    } else {
+      _state.turn = 1;
+    }
   };
 
   const playerMove = (row, col) => {
@@ -144,22 +139,24 @@ const gameController = (() => {
       return false;
     }
 
-    const token =
-      _state.playerTurn === 1 ? _player1.getToken() : _player2.getToken();
+    const token = _state.turn === 1 ? _player1.getToken() : _player2.getToken();
     gameBoard.set(row, col, token);
 
-    console.log(gameBoard.toString());
-
-    if (isWin(row, col, token)) {
+    if (isWin(gameBoard.get(), token)) {
       const playerName =
-        _state.playerTurn === 1 ? _player1.getName() : _player2.getName();
-      console.log(`${playerName} wins`);
+        _state.turn === 1 ? _player1.getName() : _player2.getName();
+      setWinningCells(row, col, token);
       _state.running = false;
-    } else if (isTie()) {
-      console.log(`Tie game`);
+    } else if (isTie(gameBoard.get())) {
       _state.running = false;
     } else {
-      _state.playerTurn = _state.playerTurn === 1 ? 2 : 1;
+      _state.turn = _state.turn === 1 ? 2 : 1;
+    }
+
+    if (isAiTurn()) {
+      setTimeout(() => {
+        _aiMove();
+      }, 500);
     }
 
     return true;
@@ -169,8 +166,35 @@ const gameController = (() => {
     return _state;
   };
 
+  const setStateItem = (selector, state) => {
+    _state[`${selector}`] = state;
+  };
+
   const getWinningCells = () => {
     return _winningCells;
+  };
+
+  const setWinningCells = (row, col, token) => {
+    if (_checkRowWin(row, token)) {
+      _winningCells[row][0] = 1;
+      _winningCells[row][1] = 1;
+      _winningCells[row][2] = 1;
+    }
+    if (_checkColWin(col, token)) {
+      _winningCells[0][col] = 1;
+      _winningCells[1][col] = 1;
+      _winningCells[2][col] = 1;
+    }
+    if (_checkPrimaryDiagWin(token)) {
+      _winningCells[0][0] = 1;
+      _winningCells[1][1] = 1;
+      _winningCells[2][2] = 1;
+    }
+    if (_checkSecondaryDiagWin(token)) {
+      _winningCells[0][2] = 1;
+      _winningCells[1][1] = 1;
+      _winningCells[2][0] = 1;
+    }
   };
 
   const _winningCellsReset = () => {
@@ -181,23 +205,38 @@ const gameController = (() => {
     ];
   };
 
-  const isWin = (row, col, token) => {
-    // Checking with variables here to make sure the functions run
-    // and set all winning cells (any 3 in a row) so that if a
-    // player wins using both a row and col, they both change color at the end
-    let rowWin = _checkRowWin(row, token);
-    let colWin = _checkColWin(col, token);
-    return rowWin || colWin || _checkDiagWin(token);
+  const isAiTurn = () => {
+    return _state.vsPlayer === false && _state.turn === 2;
   };
 
-  const isTie = () => {
-    return gameBoard
-      .get()
-      .flatMap((row) => row)
-      .every((element) => element !== "");
+  const isWin = (board, token) => {
+    for (let i = 0; i < board.length; i++) {
+      if (_checkRowWin(i, token)) return true;
+    }
+
+    for (let i = 0; i < board.length; i++) {
+      if (_checkColWin(i, token)) return true;
+    }
+
+    if (_checkDiagWin(token)) return true;
+
+    return false;
   };
 
-  return { getState, getWinningCells, newGame, playerMove, isWin, isTie };
+  const isTie = (board) => {
+    return board.flatMap((row) => row).every((element) => element !== "");
+  };
+
+  return {
+    getState,
+    setStateItem,
+    getWinningCells,
+    newGame,
+    playerMove,
+    isWin,
+    isTie,
+    isAiTurn,
+  };
 })();
 
 const displayController = (() => {
@@ -208,6 +247,7 @@ const displayController = (() => {
   const grid = document.querySelector(".grid");
   const opponentsModal = document.querySelector(".opponents");
   const difficultyModal = document.querySelector(".difficulty");
+  const playersModal = document.querySelector(".players");
   const modalBackBtn = document.querySelector(".modal-back");
   const pageIndicators = document.querySelector(".page-indicators");
   const pageIndicatorPrev = document.querySelector(
@@ -222,6 +262,15 @@ const displayController = (() => {
   const chooseOpponentComputer = document.querySelector(
     ".opponents .modal-options > div:nth-child(2)"
   );
+  const chooseDifficultyEasy = document.querySelector(
+    ".difficulty .modal-options > div:nth-child(1)"
+  );
+  const chooseDifficultyMedium = document.querySelector(
+    ".difficulty .modal-options > div:nth-child(2)"
+  );
+  const chooseDifficultyHard = document.querySelector(
+    ".difficulty .modal-options > div:nth-child(3)"
+  );
 
   /* Add event listeners to DOM elements */
   newGameBtn.addEventListener("click", () => {
@@ -233,17 +282,16 @@ const displayController = (() => {
     cell.addEventListener("click", () => {
       const row = cell.getAttribute("data-row");
       const col = cell.getAttribute("data-col");
-      const token = gameController.getState().playerTurn === 1 ? "X" : "O";
+      const token = gameController.getState().turn === 1 ? "X" : "O";
 
-      if (gameController.playerMove(row, col)) {
-        cell.appendChild(elementFactory.createCellItem(token));
-
-        if (gameController.isWin(row, col, token)) {
+      if (gameController.playerMove(row, col, token)) {
+        addTokenToCell(row, col, token);
+        if (gameController.isWin(gameBoard.get(), token)) {
           highlightCellsOnGameEnd({ isWin: true });
           changeHeaderToStatusMsgOnGameEnd(
             `Player ${token === "X" ? 1 : 2} wins!`
           );
-        } else if (gameController.isTie()) {
+        } else if (gameController.isTie(gameBoard.get())) {
           highlightCellsOnGameEnd({ isTie: true });
           changeHeaderToStatusMsgOnGameEnd("Tie game!");
         }
@@ -253,15 +301,20 @@ const displayController = (() => {
   chooseOpponentPlayer.addEventListener("click", () => {
     opponentsModal.classList.add("slideLeftFadeOut-animation");
     pageIndicators.classList.add("slideLeftFadeOut-animation");
-    grid.classList.add("show-animation");
-    newGameBtn.classList.add("show-animation");
+
     setTimeout(() => {
       opponentsModal.style.display = "none";
       modalBackBtn.style.display = "none";
       pageIndicators.style.display = "none";
+    }, 900);
+    setTimeout(() => {
       newGameBtn.style.opacity = "1";
       grid.style.opacity = "1";
-    }, 900);
+      grid.classList.add("show-animation");
+      newGameBtn.classList.add("show-animation");
+    }, 400);
+
+    gameController.setStateItem("vsPlayer", true);
     gameController.newGame();
   });
   chooseOpponentComputer.addEventListener("click", () => {
@@ -283,26 +336,103 @@ const displayController = (() => {
       pageIndicatorPrev.classList.remove("toPageIndicatorPrev-animation");
       modalBackBtn.classList.remove("slideLeftFadeIn-animation");
     }, 900);
+
+    gameController.setStateItem("vsPlayer", false);
   });
-  modalBackBtn.addEventListener("click", () => {
-    opponentsModal.style.display = "flex";
-    opponentsModal.classList.add("slideRightFadeIn-animation");
-    difficultyModal.classList.add("slideRightFadeOut-animation");
-    modalBackBtn.classList.add("slideRightFadeOut-animation");
-    pageIndicatorNext.classList.add("toPageIndicatorPrev-animation");
-    pageIndicatorPrev.classList.add("toPageIndicatorNext-animation");
-    pageIndicatorPrev.classList.remove("page-indicator__off");
+  chooseDifficultyEasy.addEventListener("click", () => {
+    difficultyModal.classList.add("slideLeftFadeOut-animation");
+    pageIndicators.classList.add("slideLeftFadeOut-animation");
+    modalBackBtn.classList.add("slideLeftFadeOut-animation");
 
     setTimeout(() => {
       difficultyModal.style.display = "none";
       modalBackBtn.style.display = "none";
-      opponentsModal.classList.remove("slideRightFadeIn-animation");
-      difficultyModal.classList.remove("slideRightFadeOut-animation");
-      modalBackBtn.classList.remove("slideRightFadeOut-animation");
-      pageIndicatorNext.classList.remove("toPageIndicatorPrev-animation");
-      pageIndicatorPrev.classList.remove("toPageIndicatorNext-animation");
-      pageIndicatorNext.classList.add("page-indicator__off");
+      pageIndicators.style.display = "none";
+      difficultyModal.classList.remove("slideLeftFaeOut-animation");
+      modalBackBtn.classList.remove("slideLeftFadeOutAnimation");
+      pageIndicatorNext.classList.remove("slideLeftFadeOutAnimation");
     }, 900);
+
+    setTimeout(() => {
+      newGameBtn.style.opacity = "1";
+      grid.style.opacity = "1";
+      grid.classList.add("show-animation");
+      newGameBtn.classList.add("show-animation");
+    }, 400);
+
+    gameController.setStateItem("difficulty", "easy");
+    gameController.newGame();
+  });
+  chooseDifficultyMedium.addEventListener("click", () => {
+    difficultyModal.classList.add("slideLeftFadeOut-animation");
+    pageIndicators.classList.add("slideLeftFadeOut-animation");
+    modalBackBtn.classList.add("slideLeftFadeOut-animation");
+
+    setTimeout(() => {
+      difficultyModal.style.display = "none";
+      modalBackBtn.style.display = "none";
+      pageIndicators.style.display = "none";
+      difficultyModal.classList.remove("slideLeftFaeOut-animation");
+      modalBackBtn.classList.remove("slideLeftFadeOutAnimation");
+      pageIndicatorNext.classList.remove("slideLeftFadeOutAnimation");
+    }, 900);
+
+    setTimeout(() => {
+      newGameBtn.style.opacity = "1";
+      grid.style.opacity = "1";
+      grid.classList.add("show-animation");
+      newGameBtn.classList.add("show-animation");
+    }, 400);
+
+    gameController.setStateItem("difficulty", "medium");
+    gameController.newGame();
+  });
+  chooseDifficultyHard.addEventListener("click", () => {
+    difficultyModal.classList.add("slideLeftFadeOut-animation");
+    pageIndicators.classList.add("slideLeftFadeOut-animation");
+    modalBackBtn.classList.add("slideLeftFadeOut-animation");
+
+    setTimeout(() => {
+      difficultyModal.style.display = "none";
+      modalBackBtn.style.display = "none";
+      pageIndicators.style.display = "none";
+      difficultyModal.classList.remove("slideLeftFaeOut-animation");
+      modalBackBtn.classList.remove("slideLeftFadeOutAnimation");
+      pageIndicatorNext.classList.remove("slideLeftFadeOutAnimation");
+    }, 900);
+
+    setTimeout(() => {
+      newGameBtn.style.opacity = "1";
+      grid.style.opacity = "1";
+      grid.classList.add("show-animation");
+      newGameBtn.classList.add("show-animation");
+    }, 400);
+
+    gameController.setStateItem("difficulty", "hard");
+    gameController.newGame();
+  });
+  modalBackBtn.addEventListener("click", () => {
+    if (playersModal.style.display === "flex") {
+    } else {
+      opponentsModal.style.display = "flex";
+      opponentsModal.classList.add("slideRightFadeIn-animation");
+      difficultyModal.classList.add("slideRightFadeOut-animation");
+      modalBackBtn.classList.add("slideRightFadeOut-animation");
+      pageIndicatorNext.classList.add("toPageIndicatorPrev-animation");
+      pageIndicatorPrev.classList.add("toPageIndicatorNext-animation");
+      pageIndicatorPrev.classList.remove("page-indicator__off");
+
+      setTimeout(() => {
+        difficultyModal.style.display = "none";
+        modalBackBtn.style.display = "none";
+        opponentsModal.classList.remove("slideRightFadeIn-animation");
+        difficultyModal.classList.remove("slideRightFadeOut-animation");
+        modalBackBtn.classList.remove("slideRightFadeOut-animation");
+        pageIndicatorNext.classList.remove("toPageIndicatorPrev-animation");
+        pageIndicatorPrev.classList.remove("toPageIndicatorNext-animation");
+        pageIndicatorNext.classList.add("page-indicator__off");
+      }, 900);
+    }
   });
 
   const changeHeaderToStatusMsgOnGameEnd = (statusMsg) => {
@@ -340,6 +470,13 @@ const displayController = (() => {
     }, 500);
   };
 
+  const addTokenToCell = (row, col, token) => {
+    const cell = document.querySelector(
+      `.cell[data-row='${row}'][data-col='${col}']`
+    );
+    cell.appendChild(elementFactory.createCellItem(token));
+  };
+
   const highlightCellsOnGameEnd = (endState) => {
     cells.forEach((cell) => {
       const row = cell.getAttribute("data-row");
@@ -354,6 +491,12 @@ const displayController = (() => {
         path?.classList.add("strobeRedTie-animation");
       }
     });
+  };
+
+  return {
+    addTokenToCell,
+    highlightCellsOnGameEnd,
+    changeHeaderToStatusMsgOnGameEnd,
   };
 })();
 
@@ -391,4 +534,127 @@ const elementFactory = (() => {
   };
 
   return { createCellItem };
+})();
+
+const aiController = (() => {
+  const _aiToken = "O";
+  const _playerToken = "X";
+
+  const _getEasyMove = () => {
+    console.log("EASY AI MOVE");
+    const board = gameBoard.get();
+    const availableMoves = [];
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[i].length; j++) {
+        if (board[i][j] === "") {
+          availableMoves.push([i, j]);
+        }
+      }
+    }
+
+    const randomIndex = Math.floor(Math.random() * availableMoves.length);
+    return availableMoves[randomIndex];
+  };
+
+  const _getMediumMove = () => {
+    console.log("MEDIUM AI MOVE");
+
+    const board = gameBoard.get();
+
+    // Check for a winning move or block opponent's winning move
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[0].length; j++) {
+        if (board[i][j] === "") {
+          // Try the move for opponent, if win block it
+          board[i][j] = _playerToken;
+          if (gameController.isWin(board, _playerToken)) {
+            board[i][j] = "";
+            return [i, j];
+          }
+
+          // Try the move for self, if win take it
+          board[i][j] = _aiToken;
+          if (gameController.isWin(board, _aiToken)) {
+            board[i][j] = "";
+            return [i, j];
+          }
+
+          // Reset moves
+          board[i][j] = "";
+        }
+      }
+    }
+
+    return _getEasyMove();
+  };
+
+  const _getHardMove = () => {
+    const board = gameBoard.get();
+    let bestScore = Infinity;
+    let moveScore = [-1, -1];
+
+    for (let i = 0; i < board.length; i++) {
+      for (let j = 0; j < board[0].length; j++) {
+        if (board[i][j] === "") {
+          board[i][j] = _aiToken;
+          let moveScore = _minimax(board, _playerToken);
+          board[i][j] = "";
+          if (moveScore < bestScore) {
+            moveScore = [i, j];
+            bestScore = moveScore;
+          }
+        }
+      }
+    }
+    return bestMove;
+  };
+
+  const _minimax = (board, token) => {
+    if (gameController.isWin(board, _playerToken)) return 10;
+    if (gameController.isWin(board, _aiToken)) return -10;
+    if (gameController.isTie(board)) return 0;
+
+    let score;
+
+    if (token === _playerToken) {
+      score = -Infinity;
+      for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[0].length; j++) {
+          if (board[i][j] === "") {
+            board[i][j] = _playerToken;
+            score = Math.max(score, _minimax(board, _aiToken));
+            board[i][j] = "";
+          }
+        }
+      }
+    } else {
+      score = Infinity;
+      for (let i = 0; i < board.length; i++) {
+        for (let j = 0; j < board[0].length; j++) {
+          if (board[i][j] === "") {
+            board[i][j] = _aiToken;
+            score = Math.min(score, _minimax(board, _playerToken));
+            board[i][j] = "";
+          }
+        }
+      }
+    }
+    return score;
+  };
+
+  const aiMove = () => {
+    if (gameController.getState().difficulty === "easy") {
+      return _getEasyMove();
+    } else if (gameController.getState().difficulty === "medium") {
+      return _getMediumMove();
+    } else if (gameController.getState().difficulty === "hard") {
+      return _getHardMove();
+    }
+  };
+
+  const getToken = () => {
+    return _aiToken;
+  };
+
+  return { aiMove, getToken };
 })();
