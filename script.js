@@ -42,14 +42,13 @@ const gameBoard = (() => {
 })();
 
 const gameController = (() => {
-  const _player1 = player("Player1", "X");
-  const _player2 = player("Player2", "O");
+  let _player1;
+  let _player2;
   const _state = {
     running: false,
     turn: undefined,
     difficulty: undefined,
     vsPlayer: undefined,
-    difficulty: undefined,
   };
   let _winningCells = [
     [0, 0, 0],
@@ -115,7 +114,6 @@ const gameController = (() => {
     const board = gameBoard.get();
 
     if (isWin(board, token)) {
-      console.log("AI WINS");
       setWinningCells(row, col, token);
       displayController.highlightCellsOnGameEnd({ isWin: true });
       displayController.changeHeaderToStatusMsgOnGameEnd(`Computer wins!`);
@@ -139,12 +137,15 @@ const gameController = (() => {
       return false;
     }
 
-    const token = _state.turn === 1 ? _player1.getToken() : _player2.getToken();
+    let token;
+    if (_state.vsPlayer === false) {
+      token = "X";
+    } else {
+      token = _state.turn === 1 ? _player1.getToken() : _player2.getToken();
+    }
     gameBoard.set(row, col, token);
 
     if (isWin(gameBoard.get(), token)) {
-      const playerName =
-        _state.turn === 1 ? _player1.getName() : _player2.getName();
       setWinningCells(row, col, token);
       _state.running = false;
     } else if (isTie(gameBoard.get())) {
@@ -160,6 +161,11 @@ const gameController = (() => {
     }
 
     return true;
+  };
+
+  const createPlayers = (p1Name, p2Name) => {
+    _player1 = player(p1Name, "X");
+    _player2 = player(p2Name, "O");
   };
 
   const getState = () => {
@@ -236,11 +242,13 @@ const gameController = (() => {
     isWin,
     isTie,
     isAiTurn,
+    createPlayers,
   };
 })();
 
 const displayController = (() => {
   /* Grab DOM elements */
+  const body = document.querySelector("body");
   const h1 = document.querySelector("h1");
   const newGameBtn = document.querySelector(".new-game");
   const cells = document.querySelectorAll(".cell");
@@ -271,8 +279,19 @@ const displayController = (() => {
   const chooseDifficultyHard = document.querySelector(
     ".difficulty .modal-options > div:nth-child(3)"
   );
+  const p1NameInput = document.querySelector(
+    ".players .option:nth-child(1) .option-text > input"
+  );
+  const p2NameInput = document.querySelector(
+    ".players .option:nth-child(2) .option-text > input"
+  );
+  const confirmBtn = document.querySelector(".confirm");
 
   /* Add event listeners to DOM elements */
+  body.onload = () => {
+    p1NameInput.value = "";
+    p2NameInput.value = "";
+  };
   newGameBtn.addEventListener("click", () => {
     gameController.newGame();
     clearCells();
@@ -280,6 +299,7 @@ const displayController = (() => {
   });
   cells.forEach((cell) =>
     cell.addEventListener("click", () => {
+      if (gameController.isAiTurn()) return;
       const row = cell.getAttribute("data-row");
       const col = cell.getAttribute("data-col");
       const token = gameController.getState().turn === 1 ? "X" : "O";
@@ -300,22 +320,25 @@ const displayController = (() => {
   );
   chooseOpponentPlayer.addEventListener("click", () => {
     opponentsModal.classList.add("slideLeftFadeOut-animation");
-    pageIndicators.classList.add("slideLeftFadeOut-animation");
+    playersModal.classList.add("slideLeftFadeIn-animation");
+    pageIndicatorNext.classList.add("toPageIndicatorNext-animation");
+    pageIndicatorPrev.classList.add("toPageIndicatorPrev-animation");
+    pageIndicatorNext.classList.remove("page-indicator__off");
+    modalBackBtn.classList.add("slideLeftFadeIn-animation");
+    modalBackBtn.style.display = "flex";
+    playersModal.style.display = "flex";
 
     setTimeout(() => {
       opponentsModal.style.display = "none";
-      modalBackBtn.style.display = "none";
-      pageIndicators.style.display = "none";
+      pageIndicatorPrev.classList.add("page-indicator__off");
+      opponentsModal.classList.remove("slideLeftFadeOut-animation");
+      playersModal.classList.remove("slideLeftFadeIn-animation");
+      pageIndicatorNext.classList.remove("toPageIndicatorNext-animation");
+      pageIndicatorPrev.classList.remove("toPageIndicatorPrev-animation");
+      modalBackBtn.classList.remove("slideLeftFadeIn-animation");
     }, 900);
-    setTimeout(() => {
-      newGameBtn.style.opacity = "1";
-      grid.style.opacity = "1";
-      grid.classList.add("show-animation");
-      newGameBtn.classList.add("show-animation");
-    }, 400);
 
     gameController.setStateItem("vsPlayer", true);
-    gameController.newGame();
   });
   chooseOpponentComputer.addEventListener("click", () => {
     opponentsModal.classList.add("slideLeftFadeOut-animation");
@@ -413,6 +436,24 @@ const displayController = (() => {
   });
   modalBackBtn.addEventListener("click", () => {
     if (playersModal.style.display === "flex") {
+      opponentsModal.style.display = "flex";
+      opponentsModal.classList.add("slideRightFadeIn-animation");
+      playersModal.classList.add("slideRightFadeOut-animation");
+      modalBackBtn.classList.add("slideRightFadeOut-animation");
+      pageIndicatorNext.classList.add("toPageIndicatorPrev-animation");
+      pageIndicatorPrev.classList.add("toPageIndicatorNext-animation");
+      pageIndicatorPrev.classList.remove("page-indicator__off");
+
+      setTimeout(() => {
+        playersModal.style.display = "none";
+        modalBackBtn.style.display = "none";
+        opponentsModal.classList.remove("slideRightFadeIn-animation");
+        playersModal.classList.remove("slideRightFadeOut-animation");
+        modalBackBtn.classList.remove("slideRightFadeOut-animation");
+        pageIndicatorNext.classList.remove("toPageIndicatorPrev-animation");
+        pageIndicatorPrev.classList.remove("toPageIndicatorNext-animation");
+        pageIndicatorNext.classList.add("page-indicator__off");
+      }, 900);
     } else {
       opponentsModal.style.display = "flex";
       opponentsModal.classList.add("slideRightFadeIn-animation");
@@ -433,6 +474,33 @@ const displayController = (() => {
         pageIndicatorNext.classList.add("page-indicator__off");
       }, 900);
     }
+  });
+  confirmBtn.addEventListener("click", () => {
+    const p1Name = p1NameInput.value === "" ? "Player 1" : p1NameInput.value;
+    const p2Name = p2NameInput.value === "" ? "Player 1" : p2NameInput.value;
+
+    gameController.createPlayers(p1Name, p2Name);
+    gameController.newGame();
+
+    playersModal.classList.add("slideLeftFadeOut-animation");
+    modalBackBtn.classList.add("slideLeftFadeOut-animation");
+    pageIndicators.classList.add("slideLeftFadeOut-animation");
+
+    setTimeout(() => {
+      playersModal.style.display = "none";
+      modalBackBtn.style.display = "none";
+      pageIndicators.style.display = "none";
+      playersModal.classList.remove("slideRightFadeOut-animation");
+      modalBackBtn.classList.remove("slideRightFadeOut-animation");
+      pageIndicators.classList.remove("slideLeftFadeOut-animation");
+    }, 900);
+
+    setTimeout(() => {
+      newGameBtn.style.opacity = "1";
+      grid.style.opacity = "1";
+      grid.classList.add("show-animation");
+      newGameBtn.classList.add("show-animation");
+    }, 400);
   });
 
   const changeHeaderToStatusMsgOnGameEnd = (statusMsg) => {
