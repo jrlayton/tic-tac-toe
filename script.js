@@ -168,6 +168,10 @@ const gameController = (() => {
     _player2 = player(p2Name, "O");
   };
 
+  const getPlayers = () => {
+    return { _player1, _player2 };
+  };
+
   const getState = () => {
     return _state;
   };
@@ -243,6 +247,7 @@ const gameController = (() => {
     isTie,
     isAiTurn,
     createPlayers,
+    getPlayers,
   };
 })();
 
@@ -308,9 +313,15 @@ const displayController = (() => {
         addTokenToCell(row, col, token);
         if (gameController.isWin(gameBoard.get(), token)) {
           highlightCellsOnGameEnd({ isWin: true });
-          changeHeaderToStatusMsgOnGameEnd(
-            `Player ${token === "X" ? 1 : 2} wins!`
-          );
+          if (gameController.getState().vsPlayer) {
+            const p1Name = gameController.getPlayers()._player1.getName();
+            const p2Name = gameController.getPlayers()._player2.getName();
+            changeHeaderToStatusMsgOnGameEnd(
+              `${gameController.getState().turn === 1 ? p1Name : p2Name} wins!`
+            );
+          } else {
+            changeHeaderToStatusMsgOnGameEnd("Player wins!");
+          }
         } else if (gameController.isTie(gameBoard.get())) {
           highlightCellsOnGameEnd({ isTie: true });
           changeHeaderToStatusMsgOnGameEnd("Tie game!");
